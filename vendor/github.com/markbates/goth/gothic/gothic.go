@@ -68,7 +68,6 @@ func BeginAuthHandler(res http.ResponseWriter, req *http.Request) {
 		fmt.Fprintln(res, err)
 		return
 	}
-
 	http.Redirect(res, req, url, http.StatusTemporaryRedirect)
 }
 

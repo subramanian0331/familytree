@@ -15,3 +15,13 @@ type Storage interface {
 func NewStorage(host string) Storage {
 	return &RedisGraphDB{host: host}
 }
+
+type UserStorage interface {
+	AddUser(models.User) error
+	DeleteUser(id string) (*models.User, error)
+	GetUser(id string) (*models.User, error)
+}
+
+func NewUserStorage(host string) UserStorage {
+	re
+}

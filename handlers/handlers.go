@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -15,9 +16,9 @@ type BaseHandler struct {
 	DB store.Storage
 }
 
-func NewBaseHandler(host string) *BaseHandler {
+func NewBaseHandler(graphDB store.Storage, userDB store.UserStorage) *BaseHandler {
 	bh := BaseHandler{
-		DB: store.NewStorage(host),
+		DB: graphDB,
 	}
 	return &bh
 }
@@ -71,4 +72,9 @@ func (b *BaseHandler) GetMember(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	fmt.Println(params)
 
+}
+
+func (b *BaseHandler) GetIndex(w http.ResponseWriter, r *http.Request) {
+	t, _ := template.ParseFiles("ui/templates/index.html")
+	t.Execute(w, false)
 }
