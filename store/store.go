@@ -23,5 +23,5 @@ type UserStorage interface {
 }
 
 func NewUserStorage(host string) UserStorage {
-	re
+	return &PostgresDB{}
 }

@@ -18,7 +18,6 @@ func (r *RedisGraphDB) AddMember(member *models.Member) error {
 	conn, _ := redis.Dial("tcp", r.host)
 	defer conn.Close()
 	graph := rg.GraphNew("FamilyTree", conn)
-	// fmt.Printf("sdfd %v", conn)
 	newNode := rg.Node{
 		Label: "member",
 		Properties: map[string]interface{}{

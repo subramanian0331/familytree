@@ -13,52 +13,37 @@ import (
 )
 
 type BaseHandler struct {
-	DB store.Storage
+	familyDB store.Storage
+	userDB   store.UserStorage
 }
 
 func NewBaseHandler(graphDB store.Storage, userDB store.UserStorage) *BaseHandler {
 	bh := BaseHandler{
-		DB: graphDB,
+		familyDB: graphDB,
+		userDB:   userDB,
 	}
 	return &bh
 }
 
+// Basic service health check.
 func (b *BaseHandler) HealthCheck(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Health OK 100%")
+	fmt.Fprintf(w, "Health OK")
 }
 
+//Adds new family member to the database
 func (b *BaseHandler) AddMember(w http.ResponseWriter, r *http.Request) {
 	m := models.Member{
 		Id: uuid.New(),
 	}
-	// // Buffer the body
-	// if r.Body != nil {
-	// 	bodyBytes, err := ioutil.ReadAll(r.Body)
-	// 	if err != nil {
-	// 		fmt.Printf("Body reading error: %v", err)
-	// 		return
-	// 	}
-	// 	defer r.Body.Close()
-	// 	if len(bodyBytes) > 0 {
-	// 		var prettyJSON bytes.Buffer
-	// 		if err = json.Indent(&prettyJSON, bodyBytes, "", "\t"); err != nil {
-	// 			fmt.Printf("JSON parse error: %v", err)
-	// 			return
-	// 		}
-	// 		fmt.Println(string(prettyJSON.Bytes()))
-	// 	} else {
-	// 		fmt.Printf("Body: No Body Supplied\n")
-	// 	}
-	// }
 
+	// un-marshaling json body to member
 	err := json.NewDecoder(r.Body).Decode(&m)
 	if err != nil {
 		fmt.Println("error", err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	fmt.Printf("herere: %+v", m)
-	err = b.DB.AddMember(&m)
+	err = b.familyDB.AddMember(&m)
 	if err != nil {
 		fmt.Println(err.Error())
 		http.Error(w, "Failed to Add Member to DB", http.StatusInternalServerError)
@@ -67,6 +52,7 @@ func (b *BaseHandler) AddMember(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Person Updated to DB")
 }
 
+// Get Family member profile
 func (b *BaseHandler) GetMember(w http.ResponseWriter, r *http.Request) {
 
 	params := mux.Vars(r)
