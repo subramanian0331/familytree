@@ -18,10 +18,16 @@ func NewStorage(host string) Storage {
 
 type UserStorage interface {
 	AddUser(models.User) error
-	DeleteUser(id string) (*models.User, error)
+	DeleteUser(Id int) error
 	GetUser(id string) (*models.User, error)
 }
 
-func NewUserStorage(host string) UserStorage {
-	return &PostgresDB{}
+func NewUserStorage(host string, port string, username string, password string, dbname string) UserStorage {
+	return &PostgresDB{
+		Host:     host,
+		Port:     port,
+		User:     username,
+		Password: password,
+		DBName:   dbname,
+	}
 }

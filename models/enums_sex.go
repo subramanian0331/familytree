@@ -67,3 +67,12 @@ func (r *Sex) UnmarshalJSON(data []byte) error {
 func (r *Sex) String() string {
 	return [...]string{"male", "female", "nonbinary"}[*r]
 }
+
+func StringToSex(s string) (Sex, error) {
+
+	v, ok := _SexNameToValue[s]
+	if !ok {
+		return 0, fmt.Errorf("invalid Sex %q", s)
+	}
+	return v, nil
+}

@@ -5,7 +5,7 @@ RUN mkdir /app
 ADD . /app
 
 WORKDIR /app
-
+RUN apt-get update && apt-get install -y iputils-ping
 RUN  go build -o main ./main.go
 
 EXPOSE 3333

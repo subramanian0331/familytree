@@ -17,12 +17,12 @@ type App struct {
 	Router *mux.Router
 }
 
-func (a *App) Initialize(user, password, dbname string, host string) {
+func (a *App) Initialize(user, password, dbname string, host string, redisPort string, pgPort string) {
 	a.Router = mux.NewRouter()
-	gStorage := store.NewStorage(host)
-	uStorage := store.NewUserStorage(host)
+	gStorage := store.NewStorage(host + ":" + redisPort)
+	uStorage := store.NewUserStorage(host, pgPort, user, password, dbname)
 	h := handlers.NewBaseHandler(gStorage, uStorage)
-	ah := handlers.NewBaseAuthHandler(host)
+	ah := handlers.NewBaseAuthHandler(host, uStorage)
 	a.initializeRoutes(h, ah)
 }
 
@@ -33,6 +33,8 @@ func (a *App) initializeRoutes(h *handlers.BaseHandler, ah *handlers.BaseAuthHan
 	a.Router.HandleFunc("/", middleware.Chain(h.GetIndex, middleware.Logging(), middleware.Method("GET"))).Methods("GET")
 	a.Router.HandleFunc("/auth/{provider}/callback", middleware.Chain(ah.AuthCallBack, middleware.Logging(), middleware.Method("GET"))).Methods("GET")
 	a.Router.HandleFunc("/auth/{provider}", ah.AuthHandle).Methods("GET")
+	a.Router.HandleFunc("/signup/", middleware.Chain(ah.Signup, middleware.Logging(), middleware.Method("POST"))).Methods("POST")
+	a.Router.HandleFunc("/deactivate/user/{id}", middleware.Chain(ah.Deactivate, middleware.Logging(), middleware.Method("DELETE"))).Methods("DELETE")
 }
 
 func (a *App) Run(addr string) {
@@ -48,7 +50,9 @@ func main() {
 		os.Getenv("APP_DB_USERNAME"),
 		os.Getenv("APP_DB_PASSWORD"),
 		os.Getenv("APP_DB_NAME"),
-		"127.0.0.1:6379")
+		"pg",
+		"6379",
+		"5432")
 
 	app.Run(*port)
 }
